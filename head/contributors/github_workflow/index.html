@@ -18,14 +18,14 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../testing/">
+        <link rel="next" href="../code_guidelines/">
       
       
         
       
       
       <link rel="icon" href="../../img/k0s-favicon-192.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2976,6 +2976,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../code_guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../testing/" class="md-nav__link">
         
   
@@ -3213,11 +3241,17 @@ my_fork<span class="w"> </span>git@github.com:<span class="o">{</span><span clas
 </code></pre></div>
 <p>Please don't use <code>git pull</code> instead of the above <code>fetch</code> / <code>rebase</code>. <code>git pull</code> does a merge, which leaves merge commits. These make the commit history messy and violate the principle that commits ought to be individually understandable and useful.</p>
 <h2 id="commit-push">Commit &amp; Push<a class="headerlink" href="#commit-push" title="Permanent link">#</a></h2>
-<p>Commit and sign your changes:</p>
+<p>Each commit should serve one purpose. Keep unrelated changes, such as
+refactorings or cleanups you make along the way, in separate commits. Commit
+<strong>and sign</strong> your changes:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>--signoff
 </code></pre></div>
-<p>The commit message should have a <a href="https://cbea.ms/git-commit/#limit-50">short</a>, <a href="https://cbea.ms/git-commit/#capitalize">capitalized</a> title <a href="https://cbea.ms/git-commit/#end">without trailing period</a> as first line. After the title
-a <a href="https://cbea.ms/git-commit/#separate">blank line</a> and then a longer description that <a href="https://cbea.ms/git-commit/#why-not-how">explains why</a> the change was made, unless it is obvious.</p>
+<p>Commit messages should have a <a href="https://cbea.ms/git-commit/#limit-50">short</a>,
+<a href="https://cbea.ms/git-commit/#capitalize">capitalized</a> subject <a href="https://cbea.ms/git-commit/#end">without trailing
+period</a> as first line. After the subject a
+<a href="https://cbea.ms/git-commit/#separate">blank line</a> and then a longer description
+that <a href="https://cbea.ms/git-commit/#why-not-how">explains why</a> the change was
+made, unless it is obvious.</p>
 <p>Use <a href="https://cbea.ms/git-commit/#imperative">imperative mood</a> in the commit message.</p>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code>Summarize changes in around 50 characters or less
@@ -3232,7 +3266,7 @@ and `rebase` can get confused if you run the two together.
 Explain the problem that this commit is solving. Focus on why you
 are making this change as opposed to how (the code explains that).
 Are there side effects or other unintuitive consequences of this
-change? Here&#39;s the place to explain them.
+change? Here's the place to explain them.
 
 Further paragraphs come after blank lines.
 
@@ -3241,20 +3275,71 @@ Further paragraphs come after blank lines.
  - Typically a hyphen or asterisk is used for the bullet, preceded
    by a single space, with blank lines in between.
 
-If you use an issue tracker, put references to them at the bottom,
-like this:
+Put references to earlier commits and other relevant material at the
+bottom, like this:
 
-Fixes: https://github.com/k0sproject/k0s/issues/373
-See also: #456, #789
+Fixes: a50271db8 ("Implement k0s feature gates")
+See: f9773809e ("Encapsulate debug flag handling")
+See: https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
 
 Signed-off-by: Name Lastname &lt;user@example.com&gt;
 </code></pre></div>
-<p>You can go back and edit/build/test some more, then <code>commit --amend</code> in a few cycles.</p>
+<p>The commit message is read by whoever looks at this change years from now via
+<code>git blame</code> or <code>git log</code>. Write it for them:</p>
+<ul>
+<li>State what was wrong, what the change does, and why. If the change fixes a
+  regression, say what the effect was in released versions.</li>
+<li>Mention non-obvious constraints the code depends on, such as ordering,
+  timing, or compatibility with data written by earlier versions. These are
+  the things a future reader can't reconstruct from the diff.</li>
+<li>If you remove dead code or do unrelated cleanup while you're there, say so.
+  Don't present it as part of the fix.</li>
+<li>Leave out how you found the bug, what you tried, what the change does <em>not</em>
+  fix, and anything addressed to the reviewer. That material belongs in the
+  pull request description or the discussion.</li>
+<li>Don't reference source file paths unless it aids understanding. The diff
+  already lists them.</li>
+</ul>
+<p>Use <code>Fixes:</code> for the commit that introduced the problem this change corrects,
+if it can be identified. The issue a change resolves is referenced from the
+pull request description instead, where GitHub's closing keywords act on it.
+Use <code>See:</code> for anything else that helps to understand the change: related
+commits, external documentation, specifications, and the like.</p>
+<p>When referencing other commits, use the abbreviated hash, e.g. as printed by
+<code>git log --oneline</code>, along with the subject line: <code>a50271db8 ("Implement k0s
+feature gates")</code>. That way, the reference is meaningful in <code>git log</code>, whether or
+not the hash resolves. In general, prefer what works locally over what only
+works on GitHub.</p>
+<p>Note that GitHub adds a timeline event to an issue or pull request whenever a
+commit referencing it is pushed to any public repository, including your own
+fork. Since a rebase creates new commits, every force-push repeats those events,
+and frequent rebases leave a trail of identical entries in the timeline. That's
+another reason to reference issues and pull requests from the pull request
+description rather than from commit messages.</p>
 <p>When ready, push your changes to your fork's repository:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>--set-upstream<span class="w"> </span>my_fork<span class="w"> </span>my_feature_branch
 </code></pre></div>
+<p>You can go back and edit/build/test some more, then <code>commit --amend</code> in a few
+cycles.</p>
+<p>After review rounds, fold any fixup commits into the commits they belong to and
+rewrite the messages so that each commit describes its final change, not its
+history. Commits titled "Address review comments" are fine during reviews, but
+clutter the history once merged. See <a href="#squashing-commits">Squashing Commits</a> for
+how to do that.</p>
 <h2 id="open-a-pull-request">Open a Pull Request<a class="headerlink" href="#open-a-pull-request" title="Permanent link">#</a></h2>
-<p>See GitHub's docs on how to <a href="https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork">create a pull request from a fork</a>.</p>
+<p>See GitHub's docs on how to <a href="https://docs.github.com/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork">create a pull request from a fork</a>.</p>
+<p>Just as with commits, a pull request should serve one purpose. While a pull
+request may have a broader goal than a single commit, each commit within it
+should be a self-contained step toward that goal. Keep unrelated changes in
+separate pull requests. Focused pull requests are easier to understand, review,
+and manage. Contested but unrelated parts of a pull request might prevent other
+acceptable parts from being merged, and backports become more manageable when
+they don't have to be untangled from unrelated changes first.</p>
+<p>The purpose of the pull request description is to facilitate discussion. It
+should include the context, the alternatives considered, what was verified and
+how it was verified, and what the change deliberately leaves out. It must not
+contradict the commit messages. When you rewrite commits after a review round,
+re-read the description and update it, too.</p>
 <h3 id="get-a-code-review">Get a code review<a class="headerlink" href="#get-a-code-review" title="Permanent link">#</a></h3>
 <p>Once your pull request has been opened it will be assigned to one or more
 reviewers, and will go through a series of <a href="../testing/#integration-tests-aka-inttests-or-smoketests">smoke tests</a>.</p>
@@ -3281,14 +3366,14 @@ pick<span class="w"> </span>a5f4a0d<span class="w"> </span>made<span class="w"> 
 <span class="c1"># r, reword &lt;commit&gt; = use commit, but edit the commit message</span>
 <span class="c1"># e, edit &lt;commit&gt; = use commit, but stop for amending</span>
 <span class="c1"># s, squash &lt;commit&gt; = use commit, but meld into previous commit</span>
-<span class="c1"># f, fixup &lt;commit&gt; = like &quot;squash&quot;, but discard this commit&#39;s log message</span>
+<span class="c1"># f, fixup &lt;commit&gt; = like "squash", but discard this commit's log message</span>
 <span class="c1"># x, exec &lt;command&gt; = run command (the rest of the line) using shell</span>
-<span class="c1"># b, break = stop here (continue rebase later with &#39;git rebase --continue&#39;)</span>
+<span class="c1"># b, break = stop here (continue rebase later with 'git rebase --continue')</span>
 <span class="c1"># d, drop &lt;commit&gt; = remove commit</span>
 <span class="c1"># l, label &lt;label&gt; = label current HEAD with a name</span>
 <span class="c1"># t, reset &lt;label&gt; = reset HEAD to a label</span>
 <span class="c1"># m, merge [-C &lt;commit&gt; | -c &lt;commit&gt;] &lt;label&gt; [# &lt;oneline&gt;]</span>
-<span class="c1"># .       create a merge commit using the original merge commit&#39;s</span>
+<span class="c1"># .       create a merge commit using the original merge commit's</span>
 <span class="c1"># .       message (or the oneline, if no original merge commit was</span>
 <span class="c1"># .       specified). Use -c &lt;commit&gt; to reword the commit message.</span>
 <span class="c1">#</span>
@@ -3300,7 +3385,7 @@ pick<span class="w"> </span>a5f4a0d<span class="w"> </span>made<span class="w"> 
 </code></pre></div>
 <p>Use a command line text editor to change the word <code>pick</code> to <code>f</code> of <code>fixup</code> for the commits you want to squash, then save your changes and continue the rebase:</p>
 <p>Per the output above, you can see that:</p>
-<div class="highlight"><pre><span></span><code>fixup<span class="w"> </span>&lt;commit&gt;<span class="w"> </span><span class="o">=</span><span class="w"> </span>like<span class="w"> </span><span class="s2">&quot;squash&quot;</span>,<span class="w"> </span>but<span class="w"> </span>discard<span class="w"> </span>this<span class="w"> </span>commit<span class="err">&#39;</span>s<span class="w"> </span>log<span class="w"> </span>message
+<div class="highlight"><pre><span></span><code>fixup<span class="w"> </span>&lt;commit&gt;<span class="w"> </span><span class="o">=</span><span class="w"> </span>like<span class="w"> </span><span class="s2">"squash"</span>,<span class="w"> </span>but<span class="w"> </span>discard<span class="w"> </span>this<span class="w"> </span>commit<span class="err">'</span>s<span class="w"> </span>log<span class="w"> </span>message
 </code></pre></div>
 <p>Which means that when rebased, the commit message "fixed some typos" will be removed, and squashed with the parent commit.</p>
 <h3 id="push-your-final-changes">Push Your Final Changes<a class="headerlink" href="#push-your-final-changes" title="Permanent link">#</a></h3>
@@ -3409,10 +3494,10 @@ pick<span class="w"> </span>a5f4a0d<span class="w"> </span>made<span class="w"> 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

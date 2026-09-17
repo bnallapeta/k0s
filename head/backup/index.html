@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../img/k0s-favicon-192.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2971,6 +2971,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../contributors/code_guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../contributors/testing/" class="md-nav__link">
         
   
@@ -3197,7 +3225,17 @@ The command provides backup archive using following naming convention: <code>k0s
 <div class="highlight"><pre><span></span><code>k0s<span class="w"> </span>restore<span class="w"> </span>/tmp/k0s_backup_2021-04-26T19_51_57_000Z.tar.gz
 </code></pre></div>
 <p>The command would fail if the data directory for the current controller has overlapping data with the backup archive content.</p>
-<p>The command would use the archived <code>k0s.yaml</code> as the cluster configuration description.</p>
+<p>The command would use the archived <code>k0s.yaml</code> as the cluster configuration description.
+It is written to the current working directory as <code>k0s_&lt;archive timestamp&gt;.yaml</code>
+(use <code>--config-out</code> to change this).</p>
+<p>If the backup is restored onto a node with a different IP address than the one
+it was taken on, and the archived configuration pins the etcd peer address via
+<code>spec.storage.etcd.peerAddress</code>, adjust it before starting the controller:
+either set it to the new node's address or remove it to have it detected
+automatically. Then start the controller with <code>--config</code> pointing at the
+adjusted file. k0s will update the peer URL of the restored etcd member
+accordingly on startup. This only works as long as the restored controller is
+the sole etcd member, i.e. before any additional controllers are joined.</p>
 <p>In case if your cluster is HA, after restoring single controller node, join the rest of the controller nodes to the cluster.
 E.g. steps for N nodes cluster would be:</p>
 <ul>
@@ -3351,10 +3389,10 @@ sub<span class="w">   </span>4096R/2F78C251<span class="w"> </span><span class="
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.autohide", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.autohide", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
